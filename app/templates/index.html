@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Steam Analytics
+    </title>
+    <link href="../static/style.css" rel="stylesheet" >
+  </head>
+  <body>
+    <h1>STEAM</h1>
+    {% for table in tables %}
+            {{ table|safe }}
+    {% endfor %}
+    
+  </body>
+</html>
