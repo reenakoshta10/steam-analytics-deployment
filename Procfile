@@ -1,1 +1,1 @@
-web: gunicorn steam-analytics-v1:app
+web: gunicorn steam_analytics:app
