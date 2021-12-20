@@ -35,15 +35,14 @@ def index():
     with engine.connect() as connection:
         df = pd.read_sql("game", connection)
         print(df.head())
-        data = df.head(10)
+        data = df.head(25)
         data.drop(
-            columns=["short_description", "supported_languages", "header_image"],
+            columns=["id","short_description", "supported_languages", "header_image"],
             axis=1,
             inplace=True,
         )
-    data_for_plt = data.head()
     return render_template(
-        "index.html", tables=[data.to_html(classes="data")], titles=data.columns.values,dataframe = data
+        "index.html", tables=[data.to_html(classes="data", index=False)], titles=data.columns.values
     )
 
 # @app.route('/fig/')
@@ -56,4 +55,4 @@ def index():
 #       return send_file(img, mimetype='image/png')
       
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host = "0.0.0.0", port = 5000, debug=True)

@@ -5,7 +5,8 @@ h1{
 table {
   font-family: arial, sans - serif;
   border-collapse: collapse;
-  width: 100% ;
+  width: 90% ;
+  margin: 50px 100px 0 100px;
 }
 
 td, th {
@@ -14,6 +15,9 @@ td, th {
   padding: 8 px;
 }
 
+th {
+  background-color: cornflowerblue;
+}
 tr:nth-child(even) {
   background-color: #dddddd;
 }
