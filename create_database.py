@@ -24,6 +24,7 @@ class Game(Base):
     website = Column(String)
     developers = Column(String)
     publishers = Column(String)
+    price = Column(Integer)
 
 
 class Database:
@@ -33,7 +34,7 @@ class Database:
         self.metadata = db.MetaData()
 
     def create_DB_tables(self):
-
+        Base.metadata.drop_all(bind=self.engine)
         Base.metadata.create_all(self.engine)
 
     def insert_data_to_table(self):
@@ -64,6 +65,7 @@ class Database:
                     "publishers": ", ".join(data[i]["publishers"])
                     if "publishers" in data[i]
                     else None,
+                    "price": data[i]["price_overview"]["final"] if "price_overview" in data[i] else 0
                 }
             )
         query = db.insert(Game)
