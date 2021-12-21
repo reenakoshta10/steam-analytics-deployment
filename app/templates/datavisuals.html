@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block body %}
+<h1>Visuals</h1>
+<a href="{{url_for('visual', except_age=0)}}">Ignore Age 0</a>
+    <div>
+      
+      <img src="../static/images/age_plot.png">
+    </div>
+{% endblock %}

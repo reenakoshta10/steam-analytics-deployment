@@ -2,6 +2,8 @@
 
 {% block body %}
   <div>
-    Steam Analytics web application...
+    {% for table in tables %}
+          {{ table|safe }}
+    {% endfor %}
   </div>
 {% endblock %}
