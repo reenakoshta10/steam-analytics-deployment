@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>
-      Steam Analytics
-    </title>
-    <link href="../static/style.css" rel="stylesheet" >
-  </head>
-  <body>
-    <table>
-      <tr><td>
-        <center><span class="site-title">STEAM</span></center>
-      </td></tr>
-      <tr><td>
-        {% for item in nav.top %}
-          <a href="{{ item.url }}" class="button {{ 'active' if item.is_active else '' }}">{{ item.label }}</a>
-      {% endfor %}
-      </td></tr>
-      <tr>
-        <td>
-          <center>{% block body %}{% endblock %}</center> 
-        </td>
-      </tr>
-    </table>
-    
-      
-      
-    
-    
 
-    
-  </body>
+<head>
+  <title>
+    Steam Analytics
+  </title>
+  <link href="../static/style.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="main-container">
+    <div class="header-content">
+      <center><span class="site-title">STEAM</span></center>
+    </div>
+
+    <div class="menus">
+      {% for item in nav.top %}
+      <a href="{{ item.url }}" class="button {{ 'active' if item.is_active else '' }}">{{ item.label }}</a>
+      {% endfor %}
+    </div>
+
+
+    <div class="page-content">
+      {% block body %}{% endblock %}
+    </div>
+
+  </div>
+
+</body>
+
 </html>

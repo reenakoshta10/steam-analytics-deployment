@@ -14,6 +14,7 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import inspect
 from sqlalchemy import func
+from sqlalchemy.sql import text
 
 import matplotlib.pyplot as plt
 app = Flask(__name__)
@@ -49,55 +50,68 @@ def get_data():
     data = None
     with engine.connect() as connection:
         df = pd.read_sql("game", connection)
-        df = df.sort_values(by =["price"],ascending=False)
+        df = df.sort_values(by =["total_reviews"],ascending=False)
+        columns = ["name",	"required_age",	"is_free",	"price_USD",	"windows",	"mac", "linux",	"categories",	"genres",	
+        "coming_soon",	"release_date",	"total_positive",	"total_negative",	"total_reviews"]
         data = df.head(25)
-        data.drop(
-            columns=["id","short_description", "supported_languages", "header_image"],
-            axis=1,
-            inplace=True,
-        )
-        age_group_count = df.groupby('required_age').size()
-    # fig, ax = plt.subplots( nrows=1, ncols=1 )  # create figure & 1 axis
-    # ax.bar(age_group_count.index, age_group_count.values)
-    # plt.savefig('app/static/images/my_plot.png')
-    # plt.close(fig)    # close the figure window
-    
+        data = data[columns]
     return render_template(
         "data.html", tables=[data.to_html(classes="data", index=False)], titles=data.columns.values
     )
 
 @app.route("/visual")
-@app.route("/visual/<int:except_age>")
-def visual(except_age=None):
+def visual():
     DBSession = sessionmaker(bind=engine)
     session = DBSession()
     
-    if(except_age == None):
-        result = session.query(func.count(Game.required_age), Game.required_age).group_by(Game.required_age).all()
-    else:
-        result = session.query(func.count(Game.required_age), Game.required_age).group_by(Game.required_age).filter(Game.required_age != except_age)
-    x=[]
-    y=[]
-    for _row in result:
-      y.append(_row[0])
-      x.append(_row[1])
-    print(x)
-    print(y)
-    fig, ax = plt.subplots( nrows=1, ncols=1 )  # create figure & 1 axis
-    ax.pie(y,labels = x, autopct='%1.1f%%')
-    plt.title("Games available for required minimum")
+    with engine.connect() as connection:
+        df = pd.read_sql("game", connection)
+        columns = ["name",	"required_age",	"is_free",	"price_USD",	"windows",	"mac", "linux",	"categories",	"genres",	
+        "coming_soon",	"release_date",	"total_positive",	"total_negative",	"total_reviews"]
+        df = df[columns]
+        df['year_of_release'] = df["release_date"].apply(lambda d: int(d[-4:]))
+        df['unit_sold'] = df.apply(lambda x: calculate_unit_sold(x.total_reviews, x.year_of_release), axis= 1)
+        df['revenue'] = df['unit_sold']* df["price_USD"] / 1000000
+        df = df.sort_values(by =["revenue"],ascending=False)
+        df = df.head(10)
+    plt.figure(figsize=(12, 12), dpi=80)  # create figure & 1 axis
+    plt.bar(df["name"],df["revenue"])
+    plt.title("Top 10 Games based on revenue")
+    plt.xticks(rotation = -45)
     plt.savefig('app/static/images/age_plot.png')
-    plt.close(fig) 
+    # plt.close(fig) 
     return render_template("datavisuals.html")
  
-# @app.route('/fig/')
-# def fig():
-#       # plt.plot([1,2,3,4], [1,2,3,4])
-#       plt.pie(data_for_plt['is_free'])
-#       img = BytesIO()
-#       plt.savefig(img)
-#       img.seek(0)
-#       return send_file(img, mimetype='image/png')
+@app.route("/insights")
+def get_plot():
+  os_name = request.args.get('os')
+  print("selected os is ",os_name)
+  with engine.connect() as connection:
+    query = "select count("+os_name+") , "+os_name+" from game group by "+os_name+";"
+    df = pd.read_sql(query, connection)
+    df[os_name].replace({1: os_name, 0: "other os"}, inplace=True)
+    print(df.head(10))
+  fig, ax = plt.subplots( nrows=1, ncols=1 )  # create figure & 1 axis
+  ax.pie(df.iloc[:,0],labels = df.iloc[:,1], autopct='%1.1f%%')
+  plt.title(f"Percentage of games are released on {os_name} systems")
+  plt.savefig('app/static/images/age_plot.png')
+  plt.close(fig) 
+  return render_template("datavisuals.html")
+
+def calculate_unit_sold(number_review, year_of_release):
+  review_multiplier = 0
+  if(year_of_release < 2014):
+    review_multiplier = 60
+  if(year_of_release >= 2014 and year_of_release<= 2016):
+    review_multiplier = 50
+  if(year_of_release == 2017):
+    review_multiplier = 40
+  if(year_of_release >= 2018 and year_of_release<= 2019):
+    review_multiplier = 35
+  if(year_of_release >= 2018 and year_of_release<= 2019):
+    review_multiplier = 30
+  return number_review * review_multiplier
+
       
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port = os.environ.get('PORT'), debug=True)

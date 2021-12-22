@@ -2,9 +2,37 @@
 
 {% block body %}
 <h1>Visuals</h1>
-<a href="{{url_for('visual', except_age=0)}}">Ignore Age 0</a>
-    <div>
-      
+<!-- <div id ="category">
+  
+    <p>Please select category to get insights</p>
+    <input type="radio" id="os" name="category" value="os" onchange="show_cat(this)">
+    <label for="os">Operating System</label><br>
+    <input type="radio" id="price" name="category" value="price" onchange="show_cat(this)">
+    <label for="price">Price</label><br>
+    <input type="radio" id="review" name="category" value="review" onchange="show_cat(this)">
+    <label for="review">User review</label>
+    <input type="radio" id="age" name="category" value="age" onchange="show_cat(this)">
+    <label for="age">Minimum age</label>
+    
+  
+</div> -->
+
+<div id ="os">
+  <form action="{{ url_for('get_plot') }}">
+    <label for="lang">Operating System</label>
+    <select name="os" id="lang">
+      <option value="windows">Windows</option>
+      <option value="mac">Mac</option>
+      <option value="linux">Linux</option>
+    </select>
+    <input type="submit" value="Get Insides" />
+  </form>
+</div>
+
+<div id="graph">
       <img src="../static/images/age_plot.png">
-    </div>
+</div>
+
+    
 {% endblock %}
+

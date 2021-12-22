@@ -1,39 +1,21 @@
 import sqlalchemy as db
 import json
 import os
+import requests
+from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import declarative_base
 
-from app.database import Base, Game
-
-# # declarative base class
-# Base = declarative_base()
-
-# # an example mapping using the base
-# class Game(Base):
-#     __tablename__ = "game"
-
-#     id = Column(Integer, primary_key=True)
-#     steam_appid = Column(Integer)
-#     name = Column(String, nullable=False)
-#     type = Column(String)
-#     required_age = Column(Integer)
-#     is_free = Column(Boolean)
-#     short_description = Column(String)
-#     supported_languages = Column(String)
-#     header_image = Column(String)
-#     website = Column(String)
-#     developers = Column(String)
-#     publishers = Column(String)
-#     price = Column(Integer)
-
-
+from app.database import *
 class Database:
     def __init__(self, connection_url) -> None:
         self.connection_url = connection_url
         self.engine = db.create_engine(self.connection_url)
         self.metadata = db.MetaData()
+        url = 'https://api.exchangerate-api.com/v4/latest/USD'
+        data= requests.get(url).json()
+        self.currencies = data['rates']
 
     def create_DB_tables(self):
         Base.metadata.drop_all(bind=self.engine)
@@ -61,19 +43,65 @@ class Database:
                     "supported_languages": data[i]["supported_languages"],
                     "header_image": data[i]["header_image"],
                     "website": data[i]["website"],
+                    "legal_notice":data[i]["legal_notice"] if "legal_notice" in data[i]
+                    else None,
                     "developers": ", ".join(data[i]["developers"])
                     if "developers" in data[i]
                     else None,
                     "publishers": ", ".join(data[i]["publishers"])
                     if "publishers" in data[i]
                     else None,
-                    "price": data[i]["price_overview"]["final"] if "price_overview" in data[i] else 0
+                    "currency" : data[i]["price_overview"]["currency"] if "price_overview" in data[i]
+                    else None,
+                    "price_initial" : data[i]["price_overview"]["initial"] if "price_overview" in data[i]
+                    else None,
+                    "price_final" : data[i]["price_overview"]["final"] if "price_overview" in data[i]
+                    else None,
+                    "discount_on_price" : data[i]["price_overview"]["discount_percent"] if "price_overview" in data[i]
+                    else None,
+                    "price_USD" : self.calculate_price(data[i]["price_overview"]["final"], data[i]["price_overview"]["currency"]) if "price_overview" in data[i]
+                    else None,
+                    "packages" : ", ".join(str(data[i]["packages"])) if "packages" in data[i]
+                    else None,
+                    "windows" : data[i]["platforms"]["windows"],
+                    "mac" : data[i]["platforms"]["mac"],
+                    "linux" : data[i]["platforms"]["linux"],
+                    "categories" : self.get_categories(data[i]["categories"]) if "categories" in data[i]
+                    else None,
+                    "genres" : self.get_genres(data[i]["genres"]) if "genres" in data[i]
+                    else None,
+                    "coming_soon" : data[i]["release_date"]["coming_soon"],
+                    "release_date" : data[i]["release_date"]["date"],
+                    "num_reviews" : data[i]["num_reviews"],
+                    "review_score" : data[i]["review_score"],
+                    "total_positive" : data[i]["total_positive"],
+                    "total_negative" : data[i]["total_negative"],
+                    "total_reviews" : data[i]["total_reviews"],
+                    "support_url" : data[i]["support_info"]["url"],
+                    "support_email" : data[i]["support_info"]["email"]
                 }
             )
         query = db.insert(Game)
         ResultProxy = connection.execute(query, value_list)
 
         f.close()
+
+    def calculate_price(self, price, currency):
+        amount = round(price / self.currencies[currency], 2) 
+        return amount
+
+    def get_categories(self, categories):
+        cat=[]
+        for category in categories:
+          cat.append(category['description'])
+        return ", ".join(cat)
+
+    def get_genres(self, genres):
+        genre_list=[]
+        for genre in genres:
+          genre_list.append(genre['description'])
+        return ", ".join(genre_list)
+
 
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
