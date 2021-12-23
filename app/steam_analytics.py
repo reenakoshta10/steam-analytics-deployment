@@ -1,7 +1,5 @@
-from io import BytesIO
 import os
 import pandas as pd
-from database import Game
 
 from flask import Flask
 from flask import render_template
@@ -17,6 +15,7 @@ from sqlalchemy import func
 from sqlalchemy.sql import text
 
 import matplotlib.pyplot as plt
+
 app = Flask(__name__)
 nav = Navigation(app)
 project_dir = os.path.dirname(os.path.abspath(__file__))
@@ -69,7 +68,7 @@ def visual():
         columns = ["name",	"required_age",	"is_free",	"price_USD",	"windows",	"mac", "linux",	"categories",	"genres",	
         "coming_soon",	"release_date",	"total_positive",	"total_negative",	"total_reviews"]
         df = df[columns]
-        df['year_of_release'] = df["release_date"].apply(lambda d: int(d[-4:]))
+        df['year_of_release'] = df["release_date"].apply(lambda d: int(d[-4:]))  
         df['unit_sold'] = df.apply(lambda x: calculate_unit_sold(x.total_reviews, x.year_of_release), axis= 1)
         df['revenue'] = df['unit_sold']* df["price_USD"] / 1000000
         df = df.sort_values(by =["revenue"],ascending=False)
@@ -100,6 +99,7 @@ def get_plot():
 
 def calculate_unit_sold(number_review, year_of_release):
   review_multiplier = 0
+
   if(year_of_release < 2014):
     review_multiplier = 60
   if(year_of_release >= 2014 and year_of_release<= 2016):
@@ -108,7 +108,7 @@ def calculate_unit_sold(number_review, year_of_release):
     review_multiplier = 40
   if(year_of_release >= 2018 and year_of_release<= 2019):
     review_multiplier = 35
-  if(year_of_release >= 2018 and year_of_release<= 2019):
+  if(year_of_release >= 2020):
     review_multiplier = 30
   return number_review * review_multiplier
 

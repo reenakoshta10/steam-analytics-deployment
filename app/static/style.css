@@ -24,9 +24,9 @@ td, th {
 th {
   background-color: cornflowerblue;
 }
-/* tr:nth-child(even) {
+tr:nth-child(even) {
   background-color: #dddddd;
-} */
+}
 
 .button {
   width: 115px;

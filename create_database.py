@@ -53,13 +53,13 @@ class Database:
                     else None,
                     "currency" : data[i]["price_overview"]["currency"] if "price_overview" in data[i]
                     else None,
-                    "price_initial" : data[i]["price_overview"]["initial"] if "price_overview" in data[i]
+                    "price_initial" : data[i]["price_overview"]["initial"]/100 if "price_overview" in data[i]
                     else None,
-                    "price_final" : data[i]["price_overview"]["final"] if "price_overview" in data[i]
+                    "price_final" : data[i]["price_overview"]["final"]/100 if "price_overview" in data[i]
                     else None,
                     "discount_on_price" : data[i]["price_overview"]["discount_percent"] if "price_overview" in data[i]
                     else None,
-                    "price_USD" : self.calculate_price(data[i]["price_overview"]["final"], data[i]["price_overview"]["currency"]) if "price_overview" in data[i]
+                    "price_USD" : self.calculate_price(data[i]["price_overview"]["final"]/100, data[i]["price_overview"]["currency"]) if "price_overview" in data[i]
                     else None,
                     "packages" : ", ".join(str(data[i]["packages"])) if "packages" in data[i]
                     else None,
