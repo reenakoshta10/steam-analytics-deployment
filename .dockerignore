@@ -1,0 +1,8 @@
+data/database.json
+venv/
+app/__pycache__
+.gitignore
+.dockerignore
+create_database.__pycache__
+app/steam_analytics_dash.py
+requirements_freeze.txt
