@@ -17,6 +17,13 @@
   
 </div> -->
 
+<div>
+  <form action="{{ url_for('visual') }}">
+    <input type="submit" value="Top 10 Games based on revenue" />
+  </form>
+</div>
+<br>
+<br>
 <div id ="os">
   <form action="{{ url_for('get_plot') }}">
     <label for="lang">Operating System</label>
@@ -30,7 +37,7 @@
 </div>
 
 <div id="graph">
-      <img src="../static/images/age_plot.png">
+      <img src="../static/images/age_plot.png" height="75%" width="75%">
 </div>
 
     

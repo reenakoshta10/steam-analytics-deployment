@@ -73,12 +73,14 @@ def visual():
         df['revenue'] = df['unit_sold']* df["price_USD"] / 1000000
         df = df.sort_values(by =["revenue"],ascending=False)
         df = df.head(10)
-    plt.figure(figsize=(12, 12), dpi=80)  # create figure & 1 axis
-    plt.bar(df["name"],df["revenue"])
+    plt.figure(figsize=(24, 12), dpi=80)  # create figure & 1 axis
+    colors= ['#78C850','#F08030','#6890F0','#A8B820','#A8A878', '#A040A0', '#F8D030', '#E0C068',
+    '#EE99AC',  '#C03028', '#F85888', '#B8A038','#705898', '#98D8D8',  '#7038F8']
+    plt.barh(df.head(10)["name"],df.head(10)["revenue"], color= colors[:10])
     plt.title("Top 10 Games based on revenue")
-    plt.xticks(rotation = -45)
+    plt.xlabel("Revenue in Millions")
+    plt.ylabel("Game")
     plt.savefig('app/static/images/age_plot.png')
-    # plt.close(fig) 
     return render_template("datavisuals.html")
  
 @app.route("/insights")
