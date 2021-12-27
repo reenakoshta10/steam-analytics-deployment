@@ -5,4 +5,9 @@ COPY . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
 ENTRYPOINT ["python"]
-CMD ["app/steam_analytics.py"]
+
+# For Flask Application
+# CMD ["app/steam_analytics.py"] 
+
+# For Plotly Dash Application
+CMD ["app/steam_analytics_dash.py"]  
