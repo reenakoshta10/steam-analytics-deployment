@@ -17,6 +17,8 @@ def connect_get_data():
       df['year_of_release'] = df["release_date"].apply(lambda d: int(d[-4:]))  
       df['unit_sold'] = df.apply(lambda x: calculate_unit_sold(x.total_reviews, x.year_of_release), axis= 1)
       df['revenue'] = df['unit_sold']* df["price_USD"] 
+      df['revenue']= df['revenue'].fillna(value=0)
+      df['price_USD']= df['price_USD'].fillna(value=0)
   return df
 
 def get_df_for_genres():
@@ -38,7 +40,7 @@ def get_df_for_genres():
   return genres_df, glist
 
 def get_top_games(x_val, y_val, count):
-  
+  print(df.columns)
   data= df.sort_values(by =[y_val],ascending=False)
   data = data.head(count)
   fig = px.bar(data, x= x_val,y = y_val, color= x_val, title = f"Top {count} Games based on {dictionary[y_val]}", 
@@ -86,7 +88,9 @@ dictionary = {
   'revenue': 'Revenue',
   'unit_sold': 'Unit Sold',
   'genres': "Genres",
-  'year_of_release': "Year of Release"
+  'year_of_release': "Year of Release",
+  'price_USD': "Price in USD",
+  'total_reviews': "Total User Reviews"
 }
 
 app.layout = html.Div(children=[
@@ -112,6 +116,8 @@ app.layout = html.Div(children=[
                   options=[
                       {'label': 'Revenue', 'value': 'revenue'},
                       {'label': 'Unit Sold', 'value': 'unit_sold'},
+                      {'label': 'Price in USD', 'value': 'price_USD'},
+                      {'label': 'User Reviews', 'value': 'total_reviews'}
                   ],
                   value='revenue',
               ),

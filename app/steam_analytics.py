@@ -30,9 +30,9 @@ nav.Bar('top', [
     nav.Item('Data Visuals', 'visual'),
 ])
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+# @app.route("/")
+# def index():
+#     return render_template("index.html")
 
 @app.route("/data")
 def get_data():
@@ -49,15 +49,25 @@ def get_data():
     data = None
     with engine.connect() as connection:
         df = pd.read_sql("game", connection)
-        df = df.sort_values(by =["total_reviews"],ascending=False)
+        sort_by = request.args.get('column') if request.args.get('column') is not None else "total_reviews"
+        order = True if (request.args.get('order') is not None and request.args.get('order') == 'True') else False
+        print(type(order))
+        print(sort_by, order)
+        df['year_of_release'] = df["release_date"].apply(lambda d: int(d[-4:]))  
+        df['unit_sold'] = df.apply(lambda x: calculate_unit_sold(x.total_reviews, x.year_of_release), axis= 1)
+        df['revenue'] = df['unit_sold']* df["price_USD"]
         columns = ["name",	"required_age",	"is_free",	"price_USD",	"windows",	"mac", "linux",	"categories",	"genres",	
-        "coming_soon",	"release_date",	"total_positive",	"total_negative",	"total_reviews"]
-        data = df.head(25)
+        "coming_soon",	"release_date",	"total_positive",	"total_negative",	"total_reviews","year_of_release","unit_sold","revenue"]
+        df['revenue']= df['revenue'].fillna(value=0)
+        df['price_USD']= df['price_USD'].fillna(value=0)
+        df = df.sort_values(by =[sort_by],ascending=order)
+        print(df.shape)
+        data = df.head(25)  
         data = data[columns]
     return render_template(
-        "data.html", tables=[data.to_html(classes="data", index=False)], titles=data.columns.values
-    )
+        "data.html", tables=[data.to_html(classes="data", index=False)], titles=data.columns.values, selected_column= "total_reviews", column_order= False)
 
+@app.route("/")
 @app.route("/visual")
 def visual():
     DBSession = sessionmaker(bind=engine)

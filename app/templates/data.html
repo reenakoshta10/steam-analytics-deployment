@@ -1,6 +1,24 @@
 {% extends "base.html" %}
 
 {% block body %}
+<br>
+<br>
+<div id ="os">
+  <form action="{{ url_for('get_data') }}">
+    <label for="col">Order by</label>
+    <select name="column" id="col">
+      {% for column in titles %}
+      <option value={{column}} selected ={{selected_column == column}}>{{ column }}</option>
+      {% endfor %}
+    </select>
+    <label for="order">Order by</label>
+    <select name="order" id="order">
+      <option value="True" selected ={{column_order == True}}> Ascending </option>
+      <option value="False" selected ={{column_order == False}}> Descending </option>
+    </select>
+    <input type="submit" value="Get Data" />
+  </form>
+</div>
   <div>
     {% for table in tables %}
           {{ table|safe }}
